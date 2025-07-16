@@ -17,12 +17,13 @@ namespace FSAsolutions
 {
     public partial class Form1 : Form
     {
-        private Form2 _form2Instance;
+        private Form3 _form3Instance;
 
         public Form1()
         {
             InitializeComponent();
 
+           
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             dataGridView1.CellContentClick += new DataGridViewCellEventHandler(dataGridView1_CellContentClick);
@@ -38,6 +39,8 @@ namespace FSAsolutions
                 // Automatically load the databases from the last selected directory
                 LoadDatabases(lastDirectory);
             }
+
+           
         }
         private void LoadDatabases(string folderPath)
         {
@@ -52,9 +55,7 @@ namespace FSAsolutions
                 table.Columns.Add("Nombre del Cliente", typeof(string));
 
                 //Eliminates unsolicited databases
-                var filteredFiles = databaseFiles.Where(file =>
-            !file.EndsWith("mail.mdf", StringComparison.OrdinalIgnoreCase) &&
-            !file.EndsWith("general.mdf", StringComparison.OrdinalIgnoreCase));
+                var filteredFiles = databaseFiles.Where(file =>!file.EndsWith("mail.mdf", StringComparison.OrdinalIgnoreCase) && !file.EndsWith("general.mdf", StringComparison.OrdinalIgnoreCase));
 
                 // Add each database to the DataTable
                 foreach (string filePath in filteredFiles)
@@ -173,23 +174,22 @@ namespace FSAsolutions
                 string databaseName = row.Cells["Database Name"].Value.ToString();
                 string clientName = row.Cells["Nombre del Cliente"].Value.ToString();
 
-                // Example action: Show a message with the selected database info
-                //MessageBox.Show($"Selected Database: {databaseName}\nClient: {clientName}", "Database Selected");
+                
 
                 // You can also open the file, or perform any other actions here
-                if (_form2Instance == null || _form2Instance.IsDisposed)
+                if (_form3Instance == null || _form3Instance.IsDisposed)
                 {
                     // Create and show Form2 if it's not already open
-                    _form2Instance = new Form2(databaseName, clientName);
-                    _form2Instance.Show();
+                    _form3Instance = new Form3(databaseName, clientName);
+                    _form3Instance.Show();
                     this.Enabled = false;
 
-                    _form2Instance.FormClosed += (s, args) => this.Enabled = true;
+                    _form3Instance.FormClosed += (s, args) => this.Enabled = true;
                 }
                 else
                 {
                     // If Form2 is already open, bring it to the front
-                    _form2Instance.BringToFront();
+                    _form3Instance.BringToFront();
                 }
             }
         }
@@ -198,7 +198,8 @@ namespace FSAsolutions
             Properties.Settings.Default.Save();  // Ensure settings are saved when the form closes
         }
 
-      
+        
+        
     }
     public class DatabaseInfo
     {
