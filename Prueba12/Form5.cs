@@ -21,14 +21,16 @@ namespace FSAsolutions
     {
         private string _databaseName;
         private string _clientName;
+        private string _connection;
 
 
-        public Form5(string databaseName, string clientName)
+        public Form5(string databaseName, string clientName, string connection)
         {
             InitializeComponent();
 
             _databaseName = databaseName;
             _clientName = clientName;
+            _connection = connection;
 
             // Set the values in the labels or other controls
             lblDatabaseName.Text = $"Base de datos seleccionada: {_databaseName}";
@@ -41,9 +43,9 @@ namespace FSAsolutions
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
-        private void Form5_Load(object sender, EventArgs e)
+        private async void Form5_Load(object sender, EventArgs e)
         {
-            LoadCatalog();
+            await LoadCatalog();
             InitializeDataGridView3();
 
 
@@ -53,14 +55,10 @@ namespace FSAsolutions
 
         }
 
-        private void LoadData(string cuenta)
+        private async Task LoadData(string cuenta)
         {
             try
             {
-
-
-                string connectionString = $@"Server=(local)\CAME2017;Database={_databaseName};Integrated Security=True;Encrypt=False;TrustServerCertificate=True;";
-
 
 
                 string cmd = $@"with numero_movimiento as ( select distinct
@@ -84,15 +82,15 @@ namespace FSAsolutions
 	                            order by a.CPOTIPO, b.[CUENUMERO] asc";
 
 
-                using (IDbConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = new SqlConnection(_connection))
                 {
-                    conn.Open();
+                    await conn.OpenAsync();
 
 
                     dataGridView1.DataSource = null;
 
 
-                    var result = conn.Query(cmd).Distinct().ToList();
+                    var result = (await conn.QueryAsync(cmd)).Distinct().ToList();
 
                     dataGridView1.AutoGenerateColumns = false;  // Disable automatic column generation
                     dataGridView1.Columns.Clear();
@@ -197,45 +195,32 @@ namespace FSAsolutions
 
 
         }
-        private void LoadCatalog()
+        private async Task LoadCatalog()
         {
             try
             {
                 // Connection string to attach the .mdf file dynamically
-                string connectionString = $@"Server=(local)\CAME2017;Database={_databaseName};Integrated Security=True;Encrypt=False;TrustServerCertificate=True;";
+                
 
                 string cmd = $@"Select[CUENUMERO] as Cuenta,[CUEDESCRI] as Descripcion from [{_databaseName}].[dbo].[B9CATCUE]";
 
-                using (IDbConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = new SqlConnection(_connection))
                 {
-                    conn.Open();
+                    await conn.OpenAsync();
 
                     dataGridView2.DataSource = null;
 
-                    var result = conn.Query(cmd).Distinct().ToList();
+                    var result = (await conn.QueryAsync<dynamic>(cmd)).Distinct().ToList();
                     dataGridView2.AutoGenerateColumns = false;  // Disable automatic column generation
                     dataGridView2.Columns.Clear();
+                                      
+                    dataGridView2.Columns.Add("Cuenta", "Cuenta");
+                    dataGridView2.Columns.Add("Descripcion", "Descripción");
 
 
-                    // Toma las columnas del primer articulo
-                    foreach (var item in result[0])
-                    {
-                        dataGridView2.Columns.Add(item.Key, item.Key);
-                    }
-
-                    //Ahora si inserta las filas
                     foreach (var item in result)
                     {
-                        DataGridViewRow row = new DataGridViewRow();
-
-                        foreach (var col in item)
-                        {
-                            row.Cells.Add(new DataGridViewTextBoxCell() { Value = col.Value.ToString() });
-                        }
-
-
-                        dataGridView2.Rows.Add(row);
-
+                        dataGridView2.Rows.Add(item.Cuenta, item.Descripcion);
                     }
 
                 }
@@ -477,22 +462,22 @@ namespace FSAsolutions
             }
         }
 
-        private void LoadSumaria(int maestro)
+        private async Task LoadSumaria(int maestro)
         {
             try
             {
                 RemoveAllGrid3();
 
                 // Example query to fetch data for GridView3
-                string connectionString = $@"Server=(local)\CAME2017;Database={_databaseName};Integrated Security=True;Encrypt=False;TrustServerCertificate=True;";
+                
                 string query = $@"SELECT DISTINCT CUENUMERO as Cuenta, CUEDESCRI as Descripcion FROM [{_databaseName}].[dbo].[B9CATCUE] WHERE INDNUMERO = {maestro}";
 
                 // Retrieve data for GridView3
                 List<string> cuentasToMove = new List<string>();
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = new SqlConnection(_connection))
                 {
-                    conn.Open();
+                    await conn.OpenAsync();
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -567,32 +552,32 @@ namespace FSAsolutions
             RemoveAllGrid3();
             ReorganizeCatalog();
         }
-        private void Inventario_Button_Click(object sender, EventArgs e)
+        private async void Inventario_Button_Click(object sender, EventArgs e)
         {
             int maestro = 11040;
-            LoadSumaria(maestro);
+            await LoadSumaria(maestro);
 
         }
 
 
-        private void depreciacion_Click(object sender, EventArgs e)
+        private async void depreciacion_Click(object sender, EventArgs e)
         {
             int maestro = 11070;
-            LoadSumaria(maestro);
+            await LoadSumaria(maestro);
         }
 
-        private void ingresos_Click(object sender, EventArgs e)
+        private async void ingresos_Click(object sender, EventArgs e)
         {
             int maestro = 21020;
-            LoadSumaria(maestro);
+            await LoadSumaria(maestro);
         }
 
         
 
-        private void dif_Camb_Click(object sender, EventArgs e)
+        private async void dif_Camb_Click(object sender, EventArgs e)
         {
             int maestro = 25010;
-            LoadSumaria(maestro);
+            await LoadSumaria(maestro);
         }
 
         public class TipoSummary

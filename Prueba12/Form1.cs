@@ -32,14 +32,13 @@ namespace FSAsolutions
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Load the last directory from settings
+            
             string lastDirectory = Properties.Settings.Default.LastDirectory;
 
-            if (!string.IsNullOrEmpty(lastDirectory) && Directory.Exists(lastDirectory))
-            {
-                // Automatically load the databases from the last selected directory
+            
+                
                 LoadDatabases(lastDirectory);
-            }
+            
 
            
         }
@@ -175,15 +174,15 @@ namespace FSAsolutions
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
 
                 // Retrieve the database name and full path from the row
-                string databaseName = row.Cells["Database Name"].Value.ToString();
-                string clientName = row.Cells["Nombre del Cliente"].Value.ToString();
+                string? databaseName = row.Cells["Database Name"].Value.ToString();
+                string? clientName = row.Cells["Nombre del Cliente"].Value.ToString();
 
                 
 
                 // You can also open the file, or perform any other actions here
                 if (_form3Instance == null || _form3Instance.IsDisposed)
                 {
-                    // Create and show Form2 if it's not already open
+                    // Create and show Form3 if it's not already open
                     _form3Instance = new Form3(databaseName, clientName);
                     _form3Instance.Show();
                     this.Enabled = false;

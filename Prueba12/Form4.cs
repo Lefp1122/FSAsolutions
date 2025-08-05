@@ -22,14 +22,16 @@ namespace FSAsolutions
     {
         private string _databaseName;
         private string _clientName;
+        private string _connection;
 
         private string insertQuery;
-        public Form4(string databaseName, string clientName)
+        public Form4(string databaseName, string clientName, string connection)
         {
             InitializeComponent();
 
             _databaseName = databaseName;
             _clientName = clientName;
+            _connection = connection;
 
             lblDatabaseName.Text = $"Base de datos seleccionada: {_databaseName}";
             lblClientName.Text = $"Nombre de cliente: {_clientName}";
@@ -68,12 +70,8 @@ namespace FSAsolutions
                 var lines = query.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 var valuesOnly = string.Join("\n", lines.Skip(2));
 
-                // Connection string to attach the .mdf file dynamically
-                string connectionString = $@"Server=(local)\CAME2017;Database={_databaseName};Integrated Security=True;Encrypt=False;TrustServerCertificate=True;";
-
-
-
-                string cmd = $@"set dateformat ymd;
+               
+                                string cmd = $@"set dateformat ymd;
                                 CREATE TABLE #TempAjustes ( 
                                 TIPO VARCHAR(10),
                                 NUMERO INT,
@@ -94,7 +92,7 @@ namespace FSAsolutions
                  ;
 
 
-                using (IDbConnection conn = new SqlConnection(connectionString))
+                using (IDbConnection conn = new SqlConnection(_connection))
                 {
                     conn.Open();
 
@@ -226,12 +224,7 @@ namespace FSAsolutions
             {
                 var lines = query.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 var valuesOnly = string.Join("\n", lines.Skip(2));
-
-                // Connection string to attach the .mdf file dynamically
-                string connectionString = $@"Server=(local)\CAME2017;Database={_databaseName};Integrated Security=True;";
-
-
-
+                                                
                 string cmdText = $@"set dateformat ymd; 
 
                             CREATE TABLE #StagingB2UNIPOL (
@@ -258,7 +251,7 @@ namespace FSAsolutions
                                 ";
 
 
-                using (IDbConnection conn = new SqlConnection(connectionString))
+                using (IDbConnection conn = new SqlConnection(_connection))
                 {
                     conn.Open();
 
