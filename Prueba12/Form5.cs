@@ -62,16 +62,18 @@ namespace FSAsolutions
 
 
                 string cmd = $@"with numero_movimiento as ( select distinct
-                                    [cpotipo], [cporefere1],
-	                                case when [CUENUMERO] in ({cuenta}) then [CPOREFERE1] else null end as numero
-      
-                                    FROM [{_databaseName}].[dbo].[B2UNIPOL] )
+                                    [cpotipo], [cporefere1] AS numero
+	                                      
+                                    FROM [{_databaseName}].[dbo].[B2UNIPOL] 
+                                     WHERE [CUENUMERO] IN ({cuenta}))
   
-                                     Select DISTINCT a.[CPOTIPO] as Tipo , b.[CueNUMERO] as Cuenta, c.[CUEDESCRI] as Descipcion
+                                     Select  a.[CPOTIPO] as Tipo ,
+                                            b.[CUENUMERO] as Cuenta, 
+                                            c.[CUEDESCRI] as Descripcion
 	                                ,sum(case when b.[CPOMOVIM] = 1 then b.[CPOIMPORTE] else 0 end) as Debito
 	                                ,sum(case when b.[CPOMOVIM] = 2 then b.[CPOIMPORTE] else 0 end) as Credito
 	                                 from numero_movimiento as a
-	                                   left join [{_databaseName}].[dbo].[B2UNIPOL] as b on a.numero = b.[CPOREFERE1]
+	                                inner join [{_databaseName}].[dbo].[B2UNIPOL] as b on a.numero = b.[CPOREFERE1]
 	                                left join [{_databaseName}].[dbo].[B9CATCUE] as c on b.[CUENUMERO] = c.[CUENUMERO]
 	                                where a.numero is not null
 

@@ -139,7 +139,7 @@ namespace FSAsolutions
                 string comando = $@"INSERT INTO [{_databaseName}].[dbo].[B9CATCUE] (CUENUMERO, CUEDESCRI, CUENIVEL)         
 VALUES ";
 
-                for (int i = 1; i < dataGridView2.Rows.Count - 1; i++)
+                for (int i = 0; i < dataGridView2.Rows.Count - 1; i++)
                 {
 
                     string nuevaCuenta = "(";
@@ -163,6 +163,8 @@ VALUES ";
                 comando = comando.Substring(0, comando.Length - 1) + ";";
 
                 await ExportarCuenta(comando);
+
+                await cuentasFaltantes();
 
             }
 
